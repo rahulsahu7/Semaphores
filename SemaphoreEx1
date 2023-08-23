@@ -1,0 +1,56 @@
+package org.example;
+
+import java.util.concurrent.Semaphore;
+
+public class SemaphoreEx1 {
+    public static void main(String[] args) {
+        PrintOrder p = new PrintOrder(); // create object of the class
+        Thread t1 = new Thread(() ->
+        {
+            p.first();  //call the method of the class
+
+        });
+        Thread t2 = new Thread(() ->
+        {
+            p.second();
+        });
+        Thread t3 = new Thread(() ->
+                p.third());
+        t3.start();
+        t2.start();
+        t1.start();
+    }
+}
+
+ class PrintOrder {
+    Semaphore sem1 = new Semaphore(0);
+    Semaphore sem2 = new Semaphore(0);
+
+    public void first() {
+        System.out.println("first ");
+        sem1.release(); //sem1 =1 , sem2 =0
+
+    }
+
+    public void second() {
+        try {
+            sem1.acquire();
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+        System.out.println("Second");
+        sem2.release();  //sem1 = 0,sem2 =1
+    }
+
+    public void third() {
+        try {
+            sem2.acquire();
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+        System.out.println("Third");
+
+    }
+}
+
+// Q."Print in Order" problem. In this problem, you need to create three threads: one thread should print "first", the second thread should print "second", and the third thread should print "third". The catch is that they should print in order, no matter the order in which the threads are started.
